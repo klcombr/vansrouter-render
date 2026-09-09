@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "vansrouter": "0.91.21",
-    "next": "^16.1.6",
+    "next": "16.1.6",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
