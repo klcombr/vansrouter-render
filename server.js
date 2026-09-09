@@ -7,7 +7,6 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 
 const PORT = parseInt(process.env.PORT, 10) || 10000;
 const DATA_DIR = process.env.VANSROUTER_DATA_DIR || path.join(__dirname, 'data');
@@ -53,27 +52,13 @@ function buildContextPrompt() {
 
 const VANSROUTER_PORT = PORT + 1; // Internal port for VansRouter
 let vansrouterProcess = null;
+let vansrouterReady = false;
 
 function startVansRouter() {
-  const vansrouterBin = path.join(__dirname, 'node_modules', '.bin', 'vansrouter');
   const vansrouterApp = path.join(__dirname, 'node_modules', 'vansrouter', 'app');
 
-  // Try to find the VansRouter app directory
-  const possiblePaths = [
-    path.join(__dirname, 'node_modules', 'vansrouter', 'app'),
-    path.join(__dirname, 'node_modules', 'vansrouter'),
-  ];
-
-  let appDir = null;
-  for (const p of possiblePaths) {
-    if (fs.existsSync(path.join(p, 'server.js')) || fs.existsSync(path.join(p, 'custom-server.js'))) {
-      appDir = p;
-      break;
-    }
-  }
-
-  if (!appDir) {
-    console.error('Could not find VansRouter app directory');
+  if (!fs.existsSync(vansrouterApp)) {
+    console.error('VansRouter app directory not found at:', vansrouterApp);
     return;
   }
 
@@ -86,16 +71,44 @@ function startVansRouter() {
   };
 
   // Use custom-server.js if available, otherwise server.js
-  const serverFile = fs.existsSync(path.join(appDir, 'custom-server.js'))
-    ? path.join(appDir, 'custom-server.js')
-    : path.join(appDir, 'server.js');
+  const serverFile = fs.existsSync(path.join(vansrouterApp, 'custom-server.js'))
+    ? path.join(vansrouterApp, 'custom-server.js')
+    : path.join(vansrouterApp, 'server.js');
 
   console.log(`Starting VansRouter on port ${VANSROUTER_PORT}...`);
-  vansrouterProcess = execSync(`node "${serverFile}"`, {
+
+  const { spawn } = require('child_process');
+  vansrouterProcess = spawn('node', [serverFile], {
     env,
-    cwd: appDir,
-    stdio: 'inherit',
+    cwd: vansrouterApp,
+    stdio: ['ignore', 'pipe', 'pipe'],
   });
+
+  vansrouterProcess.stdout.on('data', (data) => {
+    const msg = data.toString();
+    console.log(`[VansRouter] ${msg.trim()}`);
+    if (msg.includes('listening') || msg.includes('ready') || msg.includes('started')) {
+      vansrouterReady = true;
+    }
+  });
+
+  vansrouterProcess.stderr.on('data', (data) => {
+    console.error(`[VansRouter ERROR] ${data.toString().trim()}`);
+  });
+
+  vansrouterProcess.on('error', (err) => {
+    console.error('Failed to start VansRouter:', err.message);
+  });
+
+  vansrouterProcess.on('exit', (code) => {
+    console.log(`VansRouter exited with code ${code}`);
+    vansrouterReady = false;
+    // Restart after 5 seconds
+    setTimeout(startVansRouter, 5000);
+  });
+
+  // Mark as ready after 10 seconds (Next.js needs time to start)
+  setTimeout(() => { vansrouterReady = true; }, 10000);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -103,6 +116,11 @@ function startVansRouter() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function proxyToVansRouter(req, res) {
+  if (!vansrouterReady || !vansrouterProcess) {
+    res.writeHead(503, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ error: 'VansRouter starting up...' }));
+  }
+
   const options = {
     hostname: '127.0.0.1',
     port: VANSROUTER_PORT,
@@ -148,7 +166,7 @@ const server = http.createServer((req, res) => {
       ok: true,
       service: 'vansrouter-render',
       memory_facts: mem.facts.length,
-      vansrouter_port: VANSROUTER_PORT,
+      vansrouter_ready: vansrouterReady,
     }));
   }
 
@@ -218,18 +236,18 @@ const server = http.createServer((req, res) => {
 // Start
 // ═══════════════════════════════════════════════════════════════════════════
 
-// Start VansRouter in background
-setTimeout(() => {
-  try {
-    startVansRouter();
-  } catch (err) {
-    console.error('Failed to start VansRouter:', err.message);
-  }
-}, 1000);
-
-// Start main server
+// Start main server first
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`VansRouter Render running on port ${PORT}`);
   console.log(`Memory adapter at /memory/*`);
   console.log(`Proxying AI requests to VansRouter on port ${VANSROUTER_PORT}`);
+
+  // Start VansRouter after main server is ready
+  setTimeout(() => {
+    try {
+      startVansRouter();
+    } catch (err) {
+      console.error('Failed to start VansRouter:', err.message);
+    }
+  }, 2000);
 });
