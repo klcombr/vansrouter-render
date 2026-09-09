@@ -1,0 +1,15 @@
+{
+  "name": "vansrouter-render",
+  "version": "1.0.0",
+  "description": "VansRouter AI Router + Memory Adapter for Render",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "vansrouter": "0.91.21"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "facts": [
+    {
+      "text": "klcom usa CachyOS com KDE",
+      "tags": ["sistema", "linux"],
+      "importance": 8,
+      "ts": 1788907746596
+    },
+    {
+      "text": "VansRouter roda com 100MB vs OmniRoute com 1090MB",
+      "tags": ["comparacao", "ram"],
+      "importance": 9,
+      "ts": 1788908725664
+    },
+    {
+      "text": "VansRouter substituiu OmniRoute como AI router. RAM: 285MB vs 1090MB (74% menos). Rodando via systemd user services.",
+      "tags": ["vansrouter", "omniroute", "ram", "config"],
+      "importance": 9,
+      "ts": 1788909102837
+    },
+    {
+      "text": "Hermes config.yaml: provider custom, base_url http://127.0.0.1:20128/v1, modelo default oc/mimo-v2.5-free",
+      "tags": ["hermes", "config", "provider"],
+      "importance": 8,
+      "ts": 1788909102848
+    },
+    {
+      "text": "Usuário: klcombr (GitHub). Sistema: CachyOS (Arch-based) com KDE. ~7.6GB RAM total.",
+      "tags": ["perfil", "sistema", "usuario"],
+      "importance": 9,
+      "ts": 1788914167971
+    },
+    {
+      "text": "Idioma preferido: Português do Brasil. Respostas em pt-BR quando possível.",
+      "tags": ["idioma", "preferencia", "pt-br"],
+      "importance": 8,
+      "ts": 1788914167978
+    },
+    {
+      "text": "Formato de respostas: Conciso, direto, sem enrolação. User prefere listas e código quando aplicável.",
+      "tags": ["formato", "resposta", "estilo"],
+      "importance": 8,
+      "ts": 1788914167985
+    },
+    {
+      "text": "Projetos ativos: Hermes Agent (Telegram bot local), VansRouter (AI router), OpenCode (dev tool).",
+      "tags": ["projetos", "hermes", "vansrouter", "opencode"],
+      "importance": 9,
+      "ts": 1788914167992
+    }
+  ],
+  "conversations": [],
+  "preferences": {}
+}
