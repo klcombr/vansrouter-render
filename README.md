@@ -1,22 +1,37 @@
-# VansRouter Render
+# VansRouter for Render
 
-AI Router + Memory Adapter deployed on Render.
+AI Router deployed on Render free tier. Routes requests to free AI providers (Claude, GPT, Gemini, etc.) via 40+ providers.
 
-## Endpoints
+## Architecture
 
-- `GET /health` - Health check
-- `POST /v1/chat/completions` - OpenAI-compatible chat completions (proxied to VansRouter)
-- `GET /v1/models` - List available models
-- `GET /memory/context` - Get user memory context
-- `POST /memory` - Store a fact
-- `POST /memory/search` - Search facts
-- `DELETE /memory/:idx` - Delete a fact
+```
+Hermes Gateway → Render (VansRouter) → AI Providers (Free)
+```
 
 ## Environment Variables
 
-- `PORT` - Server port (default: 10000, set by Render)
-- `VANSROUTER_DATA_DIR` - Data directory for memory store
+Set in Render dashboard:
+
+- `VANSROUTER_DATA_DIR` - Data directory (default: /app/data)
 
 ## Deploy
 
-Connected to Render via GitHub. Auto-deploys on push to main.
+1. Connect this repo to Render
+2. Create a Web Service with Docker runtime
+3. The service will build VansRouter from source
+4. Note the service URL (e.g., https://vansrouter.onrender.com)
+
+## Health Check
+
+- `GET /health` - Returns service status
+
+## API
+
+VansRouter exposes an OpenAI-compatible API at `/v1/`:
+- `POST /v1/chat/completions` - Chat completions
+- `GET /v1/models` - List available models
+
+## Default Password
+
+The VansRouter dashboard uses password: `123456`
+Dashboard URL: `https://your-service.onrender.com/masuk`
