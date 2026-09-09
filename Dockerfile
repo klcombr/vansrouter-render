@@ -5,7 +5,7 @@ WORKDIR /app
 # Copy package files
 COPY package.json ./
 
-# Install all dependencies (including next for VansRouter)
+# Install dependencies - vansrouter manages its own next version
 RUN npm install
 
 # Copy app files
