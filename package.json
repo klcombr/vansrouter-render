@@ -7,7 +7,8 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "vansrouter": "0.91.21"
+    "vansrouter": "0.91.21",
+    "next": "16.1.6"
   },
   "engines": {
     "node": ">=22.5.0"
