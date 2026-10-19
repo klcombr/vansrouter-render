@@ -33,5 +33,6 @@ VansRouter exposes an OpenAI-compatible API at `/v1/`:
 
 ## Default Password
 
-The VansRouter dashboard uses password: `123456`
+The VansRouter dashboard uses the password set in `VANSROUTER_PASSWORD`. Set it before
+exposing the service — there is no working default to announce publicly.
 Dashboard URL: `https://your-service.onrender.com/masuk`
